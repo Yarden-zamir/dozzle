@@ -1,0 +1,24 @@
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    pull_policy: always
+    environment:
+      DOZZLE_HOSTNAME: ${DOZZLE_HOSTNAME:-yarden-zamir-vps-2}
+      KITSHN_RECIPE: ${KITSHN_RECIPE}
+      KITSHN_ENVIRONMENT: ${KITSHN_ENVIRONMENT}
+      KITSHN_DEPLOYMENT: ${KITSHN_DEPLOYMENT}
+      KITSHN_PARAMS_FILE: ${KITSHN_PARAMS_FILE}
+      KITSHN_DATA_DIR: ${KITSHN_DATA_DIR}
+      KITSHN_LOG_DIR: ${KITSHN_LOG_DIR}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${KITSHN_DATA_DIR}:/data
+    ports:
+      - "127.0.0.1:8081:8080"
+    healthcheck:
+      test: ["CMD", "/dozzle", "healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped

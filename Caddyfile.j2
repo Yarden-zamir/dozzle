@@ -1,0 +1,7 @@
+dozzle.yarden-zamir.com {
+    basic_auth bcrypt {
+        {{ params.DOZZLE_AUTH_USERNAME }} {{ params.DOZZLE_AUTH_PASSWORD_HASH | replace("$$", "$") }}
+    }
+
+    reverse_proxy 127.0.0.1:8081
+}
