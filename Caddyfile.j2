@@ -3,5 +3,5 @@ dozzle.yarden-zamir.com {
         {{ params.DOZZLE_AUTH_USERNAME }} {{ params.DOZZLE_AUTH_PASSWORD_HASH | replace("$$", "$") }}
     }
 
-    reverse_proxy 127.0.0.1:8081
+    reverse_proxy unix//{{ paths.default_socket }}
 }

@@ -10,15 +10,30 @@ services:
       KITSHN_PARAMS_FILE: ${KITSHN_PARAMS_FILE}
       KITSHN_DATA_DIR: ${KITSHN_DATA_DIR}
       KITSHN_LOG_DIR: ${KITSHN_LOG_DIR}
+      KITSHN_SOCKET_DIR: ${KITSHN_SOCKET_DIR}
+      KITSHN_DEFAULT_SOCKET: ${KITSHN_DEFAULT_SOCKET}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ${KITSHN_DATA_DIR}:/data
-    ports:
-      - "127.0.0.1:8081:8080"
     healthcheck:
       test: ["CMD", "/dozzle", "healthcheck"]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 30s
+    restart: unless-stopped
+
+  socket-proxy:
+    image: alpine/socat:latest
+    pull_policy: always
+    command: ["UNIX-LISTEN:${KITSHN_DEFAULT_SOCKET},fork,unlink-early,mode=666", "TCP:dozzle:8080"]
+    volumes:
+      - ${KITSHN_SOCKET_DIR}:${KITSHN_SOCKET_DIR}
+    depends_on:
+      - dozzle
+    healthcheck:
+      test: ["CMD", "test", "-S", "${KITSHN_DEFAULT_SOCKET}"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     restart: unless-stopped
