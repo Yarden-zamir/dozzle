@@ -1,8 +1,4 @@
-{% if environment == "prod" -%}
-dozzle.yarden-zamir.com
-{%- else -%}
-pr.{{ environment.removeprefix("pr-") }}.dozzle.yarden-zamir.com
-{%- endif %} {
+{{ host("dozzle.yarden-zamir.com") }} {
     basic_auth bcrypt {
         {{ params.DOZZLE_AUTH_USERNAME }} {{ params.DOZZLE_AUTH_PASSWORD_HASH | replace("$$", "$") }}
     }
