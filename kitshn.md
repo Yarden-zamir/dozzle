@@ -41,11 +41,15 @@ before doing so, or Caddy will reject the duplicate site definition.
 
 ## This Recipe
 
-- Services: `dozzle` (the Dozzle log viewer) and `socket-proxy`, which binds the default socket.
+- Services: `dozzle` (the Dozzle log viewer), `socket-proxy`, which binds the default socket, and
+  `oauth2-proxy`, which binds `auth.sock` in the socket folder.
 - Environments: pushes to `main` deploy `prod`.
-- Hostname: `dozzle.yarden-zamir.com`, protected by Caddy HTTP basic auth.
-- Params: var `KITSHN_DOZZLE_AUTH_USERNAME` and secret `KITSHN_DOZZLE_AUTH_PASSWORD_HASH`. The hash
-  is a bcrypt hash from `caddy hash-password`, with every `$` escaped as `$$`.
+- Hostname: `dozzle.yarden-zamir.com`. Caddy sends every request through `forward_auth` to
+  oauth2-proxy. Only the GitHub user `Yarden-zamir` can sign in.
+- GitHub login uses the GitHub App [Yarden-zamir Dozzle](https://github.com/apps/yarden-zamir-dozzle),
+  with the callback `https://dozzle.yarden-zamir.com/auth/callback`.
+- Params: `prod` environment secrets `KITSHN_OAUTH2_PROXY_CLIENT_ID`,
+  `KITSHN_OAUTH2_PROXY_CLIENT_SECRET`, and `KITSHN_OAUTH2_PROXY_COOKIE_SECRET` (32 random characters).
 - `/var/run/docker.sock` is mounted read-only. Dozzle actions and shell access are not enabled.
 - Dozzle data lives in the deployment data folder, mounted at `/data`.
 

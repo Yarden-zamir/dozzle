@@ -1,7 +1,23 @@
 {{ host("dozzle.yarden-zamir.com") }} {
-    basic_auth bcrypt {
-        {{ params.DOZZLE_AUTH_USERNAME }} {{ params.DOZZLE_AUTH_PASSWORD_HASH | replace("$$", "$") }}
+    # oauth2-proxy owns the login flow under /auth/* (sign_in, callback, auth).
+    handle /auth/* {
+        reverse_proxy unix//{{ paths.socket }}/auth.sock {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-Uri {uri}
+        }
     }
 
-    reverse_proxy unix//{{ paths.default_socket }}
+    handle {
+        forward_auth unix//{{ paths.socket }}/auth.sock {
+            uri /auth/auth
+            header_up X-Real-IP {remote_host}
+
+            @error status 401
+            handle_response @error {
+                redir * /auth/sign_in?rd={scheme}://{host}{uri}
+            }
+        }
+
+        reverse_proxy unix//{{ paths.default_socket }}
+    }
 }
