@@ -1,15 +1,13 @@
 on:
   push:
-  workflow_dispatch:
-    inputs:
-      environment: { required: true, type: string }
-      ref: { required: false, type: string }
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
 
 permissions:
   contents: read
-  deployments: write
+  id-token: write
 
 jobs:
-  call:
-    uses: Yarden-zamir/kitshn/.github/workflows/deploy.yml@main
+  kitshn:
+    uses: Yarden-zamir/kitshn/.github/workflows/kitshn2-deploy.yml@main
     secrets: inherit
